@@ -4,3 +4,6 @@ python-dateutil==2.9.0.post0
 pytz==2024.1
 six==1.16.0
 tzdata==2024.1
+streamlit==1.38.0
+streamlit-option-menu==0.3.13
+requests==2.32.3
