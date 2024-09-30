@@ -47,7 +47,7 @@ def extract_event(input_string):
 # Function to convert time to seconds
 def time_to_seconds(time_str):
     time = str(time_str)
-    time.strip()
+    time.strip('X ')
     time_split = time.split(':')
     if len(time_split) == 2:
         secs = round(float(time_split[0]) * 60 + float(time_split[1]), 2)
