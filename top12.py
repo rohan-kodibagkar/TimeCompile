@@ -4,6 +4,7 @@ import csv
 import re
 import datetime
 import tempfile
+import chardet
 
 #Function adds a column time sec ,by converting column time to sec
 def convert_time_to_sec(df,time):
@@ -21,12 +22,20 @@ def select_minimum_individual_rows(df):
     result = df.loc[df.groupby(['eventnum' ,'swimmer'])['time sec'].idxmin()]
     return result
 
+def detect_encoding(file_path):
+    with open(file_path, 'rb') as f:
+        result = chardet.detect(f.read())
+    return result['encoding']
+
+                           
 #Function merges 2 files into one output file
 def merge_csv(file1, file2, output_file):
+ 
     # Read the CSV files
-    df1 = pd.read_csv(file1)
-    df2 = pd.read_csv(file2)
-    
+    df1 = pd.read_csv(file1, encoding=detect_encoding(file1))
+    df2 = pd.read_csv(file2, encoding=detect_encoding(file2))
+
+   
     # Concatenate the DataFrames
     merged_df = pd.concat([df1, df2], ignore_index=True)    
     # Save the merged DataFrame to a new CSV file
@@ -82,9 +91,11 @@ def process_pretop_csv(input_type,previousfile,input_file,output_file):
     with tempfile.NamedTemporaryFile(delete=False) as temp_file:
         temp_file.write(input_file.read())
 
-    with open(temp_file.name, 'r', newline='') as input_csvfile:
+    with open(temp_file.name, 'r', newline='',encoding=detect_encoding(temp_file.name)) as input_csvfile:
                
-        with open(intermediate_file, 'w', newline='') as output_csvfile:
+        #with open(intermediate_file, 'w', newline='',encoding=detect_encoding(intermediate_file))as output_csvfile:
+
+        with open(intermediate_file, 'w', newline='')as output_csvfile:
             csv_writer = csv.writer(output_csvfile)
             csv_reader = csv.reader(input_csvfile)
             # Read and write the header row
@@ -117,8 +128,8 @@ def process_pretop_csv(input_type,previousfile,input_file,output_file):
                 selected_data = [row[i] for i in columns_to_extract]
             
                 csv_writer.writerow(selected_data)
-    df1 = pd.read_csv(intermediate_file)
-    df2 = pd.read_csv(previousfile)
+    df1 = pd.read_csv(intermediate_file,encoding=detect_encoding(intermediate_file))
+    df2 = pd.read_csv(previousfile,encoding=detect_encoding(previousfile))
     
     # Concatenate the DataFrames
     merged_df = pd.concat([df1, df2], ignore_index=True)    
@@ -156,10 +167,11 @@ def process_top_csv(input_type,input_file,output_file):
     with tempfile.NamedTemporaryFile(delete=False) as temp_file:
         temp_file.write(input_file.read())
 
-    with open(temp_file.name, 'r', newline='') as input_csvfile:
+    with open(temp_file.name, 'r', newline='', encoding=detect_encoding(temp_file.name)) as input_csvfile:
   
         with open(intermediate_file, 'w', newline='') as output_csvfile:
-                    # Create CSV reader and writer objects
+
+              # Create CSV reader and writer objects
             csv_writer = csv.writer(output_csvfile)
             csv_reader = csv.reader(input_csvfile)
  
@@ -191,7 +203,7 @@ def process_top_csv(input_type,input_file,output_file):
             for row in filtered_rows:
                 selected_data = [row[i] for i in columns_to_extract]
                 csv_writer.writerow(selected_data)
-    df = pd.read_csv(intermediate_file)
+    df = pd.read_csv(intermediate_file,encoding=detect_encoding(intermediate_file))
     # Select minimum time for a swimmer
     sec_converted_df = convert_time_to_sec(df,'time')
 
@@ -272,7 +284,7 @@ def app():
         # Download functionality 
         st.success("Processing complete , click to download the file")                    
 
-        with open(relay_output_file, 'r') as f:
+        with open(relay_output_file, 'r',encoding=detect_encoding(relay_output_file)) as f:
             top_relay_data = f.read()
             st.download_button(
                 label=":orange[Download Relay_top.csv]",
@@ -281,7 +293,7 @@ def app():
                 mime="text/csv",
             )
 
-        with open(indi_output_file, 'r') as f:
+        with open(indi_output_file, 'r',encoding=detect_encoding(indi_output_file)) as f:
             top_indi_data = f.read()
             st.download_button(
                 label=":orange[Download Individual_top.csv]",
