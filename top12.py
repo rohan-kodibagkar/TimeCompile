@@ -4,6 +4,7 @@ import csv
 import re
 import datetime
 import tempfile
+import chardet
 
 #Function adds a column time sec ,by converting column time to sec
 def convert_time_to_sec(df,time):
