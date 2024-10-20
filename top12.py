@@ -23,9 +23,19 @@ def select_minimum_individual_rows(df):
 
 #Function merges 2 files into one output file
 def merge_csv(file1, file2, output_file):
+    with open(file1, 'rb') as f:
+        result1 = chardet.detect(f.read())
+    with open(file2, 'rb') as f:
+        result2 = chardet.detect(f.read())
+
+  
     # Read the CSV files
-    df1 = pd.read_csv(file1)
-    df2 = pd.read_csv(file2)
+    df1 = pd.read_csv(file1, encoding=result1['encoding'])
+    df2 = pd.read_csv(file2, encoding=result2['encoding'])
+
+    # # Read the CSV files
+    # df1 = pd.read_csv(file1)
+    # df2 = pd.read_csv(file2)
     
     # Concatenate the DataFrames
     merged_df = pd.concat([df1, df2], ignore_index=True)    
