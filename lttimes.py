@@ -2,10 +2,15 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 import re
-
+import chardet
 import tempfile
 import csv
 from pandas.core.api import to_numeric
+
+def detect_encoding(file_path):
+    with open(file_path, 'rb') as f:
+        result = chardet.detect(f.read())
+    return result['encoding']
 
 def add_column(file1, file2, column1_index, column2_index, output_file):
   """Adds a column from file2 to file1 based on matching values in column1, retaining the original column name.
@@ -59,7 +64,7 @@ def process_csv(input_type,input_file):
         temp_file.write(input_file.read())
 
     # Open the input CSV file for reading
-    with open(temp_file.name, 'r', newline='') as input_csvfile:
+    with open(temp_file.name, 'r', newline='',encoding=detect_encoding(temp_file.name)) as input_csvfile:
         # Open the output CSV file for writing
  
         with open(output_file, 'w', newline='') as output_csvfile:
@@ -74,7 +79,7 @@ def process_csv(input_type,input_file):
                 selected_data = [row[i] for i in columns_to_extract]
                 csv_writer.writerow(selected_data)
 
-    with open(output_file, 'r') as f:
+    with open(output_file, 'r',encoding=detect_encoding(output_file)) as f:
         reader = csv.reader(f)
         data = list(reader)
 
@@ -311,7 +316,7 @@ def app():
         else:
             MERGEDFILE = OUTFILE
 
-        with open(MERGEDFILE, 'r') as f:
+        with open(MERGEDFILE, 'r',encoding=detect_encoding(MERGEDFILE)) as f:
             processed_data = f.read()
 
         # Download functionality 
